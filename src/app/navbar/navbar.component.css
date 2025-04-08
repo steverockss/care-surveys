@@ -1,0 +1,22 @@
+/* src/app/navbar/navbar.component.css */
+
+/* Estilo personalizado para el navbar con color acorde a la YMCA */
+.ymca-navbar {
+    background-color: #002A50  !important; /* Usamos !important para sobreescribir clases de Bootstrap si es necesario */
+  }
+  
+  /* Opcionalmente, puedes mantener o ajustar estilos adicionales */
+  .navbar-brand {
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+  
+  .nav-link {
+    font-size: 1rem;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-link:hover {
+    color: #f8f9fa;
+  }
+  
