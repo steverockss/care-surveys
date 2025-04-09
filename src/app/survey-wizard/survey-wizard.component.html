@@ -1,69 +1,85 @@
 <!-- src/app/survey-wizard/survey-wizard.component.html -->
-<div class="container mt-4">
-    <!-- Título de la sección actual -->
-    <h2 class="mb-3">{{ surveySections[currentStep].title }}</h2>
-  
+<div class="container mt-5 mb-5">
     <!-- Barra de progreso -->
+    <h6 class="mb-2">Progreso de la encuesta</h6>
     <div class="progress mb-4">
-
-    </div>
-  
-    <!-- Formulario reactivo para la sección actual -->
-    <form [formGroup]="surveyForm">
-      <div *ngFor="let question of surveySections[currentStep].questions" class="mb-3">
-        <label class="form-label">{{ question.label }}</label>
-        <!-- Usamos ngSwitch para diferenciar el tipo de input -->
-        <ng-container [ngSwitch]="question.type">
-          <!-- Campo de texto -->
-          <input
-            *ngSwitchCase="'text'"
-            [attr.type]="question.type"
-            class="form-control"
-            [formControlName]="question.controlName"
-            [placeholder]="question.placeholder"
-          >
-          <!-- Campo numérico -->
-          <input
-            *ngSwitchCase="'number'"
-            [attr.type]="question.type"
-            class="form-control"
-            [formControlName]="question.controlName"
-            [placeholder]="question.placeholder"
-          >
-          <!-- Selector (select) -->
-          <select
-            *ngSwitchCase="'select'"
-            class="form-select"
-            [formControlName]="question.controlName"
-          >
-            <option *ngFor="let option of question.options" [value]="option">
-              {{ option || 'Seleccione una opción' }}
-            </option>
-          </select>
-          <div *ngIf="surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched" class="text-danger">
-            Este campo es obligatorio.
-          </div>
-          <!-- Campo checkbox (si llegas a necesitarlo) -->
-          <div *ngSwitchCase="'checkbox'" class="form-check">
-            <input
-              type="checkbox"
-              class="form-check-input"
-              [formControlName]="question.controlName"
-            >
-            <label class="form-check-label">{{ question.label }}</label>
-          </div>
-        </ng-container>
+      <div 
+        class="progress-bar" 
+        role="progressbar"
+        [style.width.%]="((currentStep + 1) / surveySections.length) * 100"
+        [attr.aria-valuenow]="((currentStep + 1) / surveySections.length) * 100"
+        aria-valuemin="0" 
+        aria-valuemax="100">
+        {{ ((currentStep + 1) / surveySections.length) * 100 | number:'1.0-0' }}%
       </div>
-    </form>
-  
-    <!-- Botones de navegación -->
-    <div class="d-flex justify-content-between">
-      <button class="btn btn-secondary" (click)="previousStep()" [disabled]="currentStep === 0">
-        Anterior
-      </button>
-      <button class="btn btn-primary" (click)="nextStep()" [disabled]="!isCurrentSectionValid()">
-        {{ currentStep === surveySections.length - 1 ? 'Enviar' : 'Siguiente' }}
-      </button>
     </div>
+  <!-- Título de la sección actual -->
+  <h4 class="mb-4">{{ surveySections[currentStep].title }}</h4>
+
+
+
+  <!-- Formulario reactivo para la sección actual -->
+  <form [formGroup]="surveyForm">
+    <div *ngFor="let question of surveySections[currentStep].questions" class="mb-3">
+      <!-- Aplicamos negrita y márgenes verticales -->
+      <label *ngIf = "question.type !== 'info' && question.type !== 'checkbox'" class="form-label fw-bold my-2">{{ question.label }}</label>
+      <label  *ngIf = "question.type == 'info' && question.type !== 'checkbox'">{{ question.label }}</label>
+      <!-- Usamos ngSwitch para diferenciar el tipo de input -->
+      <ng-container [ngSwitch]="question.type">
+        <!-- Campo de texto -->
+        <input
+          *ngSwitchCase="'text'"
+          [attr.type]="question.type"
+          class="form-control"
+          [ngClass]="{'is-invalid': surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched}"
+          [formControlName]="question.controlName"
+          [placeholder]="question.placeholder"
+          (blur)="convertToUppercase(question.controlName)"
+        >
+        <!-- Campo numérico -->
+        <input
+          *ngSwitchCase="'number'"
+          [attr.type]="question.type"
+          class="form-control"
+           [ngClass]="{'is-invalid': surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched}"
+          [formControlName]="question.controlName"
+          [placeholder]="question.placeholder"
+           (blur)="validateAge()"
+        >
+        <!-- Selector (select) -->
+        <select
+          *ngSwitchCase="'select'"
+          class="form-select"
+           [ngClass]="{'is-invalid': surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched}"
+          [formControlName]="question.controlName"
+        >
+          <option *ngFor="let option of question.options" [value]="option">
+            {{ option || 'Seleccione una opción' }}
+          </option>
+        </select>
+        <div *ngIf="surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched" class="text-danger">
+          Este campo es obligatorio.
+        </div>
+        <!-- Campo checkbox -->
+        <div *ngSwitchCase="'checkbox'" class="form-check">
+          <input
+            type="checkbox"
+            class="form-check-input"
+            [formControlName]="question.controlName"
+          >
+          <label class="form-check-label">{{ question.label }}</label>
+        </div>
+      </ng-container>
+    </div>
+  </form>
+
+  <!-- Botones de navegación -->
+  <div class="d-flex justify-content-between my-4">
+    <button class="btn btn-secondary" (click)="previousStep()" [disabled]="currentStep === 0">
+      Anterior
+    </button>
+    <button class="btn btn-primary" (click)="nextStep()"  [disabled]="!isCurrentSectionValid() >
+      {{ currentStep === surveySections.length - 1 ? 'Enviar' : 'Siguiente' }}
+    </button>
   </div>
-  
+</div>
