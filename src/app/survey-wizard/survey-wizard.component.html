@@ -1,7 +1,11 @@
 <!-- src/app/survey-wizard/survey-wizard.component.html -->
 <div class="container mt-5 mb-5">
     <!-- Barra de progreso -->
+
+    <h4 class="fs-2 text-center mb-4">Instrumento de cuidado</h4>
+    <hr/>
     <h6 class="mb-2">Progreso de la encuesta</h6>
+
     <div class="progress mb-4">
       <div 
         class="progress-bar" 
@@ -13,8 +17,10 @@
         {{ ((currentStep + 1) / surveySections.length) * 100 | number:'1.0-0' }}%
       </div>
     </div>
+  <hr/>
+
   <!-- Título de la sección actual -->
-  <h4 class="mb-4">{{ surveySections[currentStep].title }}</h4>
+  <h5 class="mb-4">{{ surveySections[currentStep].title }}</h5>
 
 
 
@@ -60,6 +66,20 @@
         <div *ngIf="surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched" class="text-danger">
           Este campo es obligatorio.
         </div>
+
+        <select
+        *ngSwitchCase="'question_select'"
+        class="form-select"
+         [ngClass]="{'is-invalid': surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched}"
+        [formControlName]="question.controlName"
+      >
+        <option *ngFor="let option of question.options" [value]="option.value">
+          {{ option.text || 'Seleccione una opción' }}
+        </option>
+        <div *ngIf="surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched" class="text-danger">
+          Este campo es obligatorio.
+        </div>
+      </select>
         <!-- Campo checkbox -->
         <div *ngSwitchCase="'checkbox'" class="form-check">
           <input
@@ -75,10 +95,13 @@
 
   <!-- Botones de navegación -->
   <div class="d-flex justify-content-between my-4">
-    <button class="btn btn-secondary" (click)="previousStep()" [disabled]="currentStep === 0">
+    <button   *ngIf="currentStep > 0" class="btn btn-secondary" (click)="previousStep()">
       Anterior
     </button>
-    <button class="btn btn-primary" (click)="nextStep()"  [disabled]="!isCurrentSectionValid() >
+    <button *ngIf="currentStep == 0" class="btn btn-primary mt-5" (click)="nextStep() "  [disabled]="!isCurrentSectionValid()" >
+      Acepto
+    </button>
+    <button *ngIf="currentStep >= 1" class="btn btn-primary" (click)="nextStep()"  >
       {{ currentStep === surveySections.length - 1 ? 'Enviar' : 'Siguiente' }}
     </button>
   </div>

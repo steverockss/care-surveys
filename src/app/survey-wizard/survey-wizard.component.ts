@@ -2,8 +2,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 // src/app/survey-wizard/survey-wizard.constants.ts
-export const COMMON_OPTIONS = ['', 'Siempre', 'Casi siempre', 'Casi nunca', 'Nunca'];
+
+export const COMMON_OPTIONS = [ { text: 'Seleccione una opción', value: '' }, { text: 'Totalmente en desacuerdo', value: 1 },
+{ text: 'Desacuerdo', value: 2 },
+{ text: 'Indiferente', value: 3 },
+{ text: 'De acuerdo', value: 4 },
+{ text: 'Totalmente de acuerdo', value: 5 }];
 import { Question, QuestionService } from '../services/questions.service';
 
 interface SurveySection {
@@ -24,7 +30,6 @@ export class SurveyWizardComponent implements OnInit {
   currentStep: number = 0;
   questions: Question[] = [];
 
-   COMMON_OPTIONS = []
 
   // Definición de secciones: la primera es la parte demográfica y luego van las secciones de preguntas.
   surveySections: SurveySection[] = [
@@ -72,6 +77,12 @@ export class SurveyWizardComponent implements OnInit {
         { label: 'Nombre completo', controlName: 'fullName', type: 'text', placeholder: 'Ingresa tu nombre completo' },
         { label: 'Edad', controlName: 'age', type: 'number', placeholder: 'Ingresa tu edad' },
         {
+          label: 'Género',
+          controlName: 'gender',
+          type: 'select',
+          options: ['', 'Masculino', 'Femenino', 'Otro']
+        },
+        {
           label: 'Tipo de documento',
           type: 'select',
           controlName: 'documentType',
@@ -85,18 +96,14 @@ export class SurveyWizardComponent implements OnInit {
         },
         { label: 'Número de documento', controlName: 'documentNumber', type: 'text', placeholder: 'Ingresa tu número de documento' },
         { label: 'Nacionalidad', controlName: 'nationality', type: 'text', placeholder: 'Ingresa tu nacionalidad' },
+        { label: 'Ciudad', controlName: 'city', type: 'text', placeholder: 'Ingresa tu ciudad' },
         { label: 'Localidad', controlName: 'locality', type: 'text', placeholder: 'Ingresa tu localidad' },
+        { label: 'Institución educativa - Colegio', controlName: 'school', type: 'text', placeholder: 'Ingresa el nombre de tu colegio' },
         {
           label: 'Nivel educativo',
           controlName: 'educationLevel',
           type: 'select',
           options: ['', 'Preescolar', 'Primaria', 'Bachillerato', 'Universidad']
-        },
-        {
-          label: 'Género',
-          controlName: 'gender',
-          type: 'select',
-          options: ['', 'Masculino', 'Femenino', 'Otro']
         },
         {
           label: 'Año que ingreso al programa',
@@ -118,7 +125,7 @@ export class SurveyWizardComponent implements OnInit {
     this.surveyForm = this.fb.group({});
   }
 
-  
+
   ngOnInit(): void {
     // Crear controles del formulario para cada pregunta de cada sección.
     this.surveySections.forEach(section => {
@@ -137,11 +144,11 @@ export class SurveyWizardComponent implements OnInit {
       const transformedQuestions = data.sort((a, b) => Number(a.code) - Number(b.code))
         .map(q => ({
           label: `${q.code}. ${q.text}`,
-        
-          controlName:  'q' + q.code,
+
+          controlName: 'q' + q.code,
           number: q.code,
-          type: 'select',
-          options: COMMON_OPTIONS
+          type: 'question_select',
+          options: COMMON_OPTIONS,
         }));
 
       const dynamicSections: SurveySection[] = [
@@ -150,6 +157,11 @@ export class SurveyWizardComponent implements OnInit {
         { title: 'Evaluación Personal  Parte 3', questions: transformedQuestions.filter(q => Number(q.number) >= 21 && Number(q.number) <= 30) },
         { title: 'Evaluación Personal  Parte 4', questions: transformedQuestions.filter(q => Number(q.number) >= 31 && Number(q.number) <= 40) },
         { title: 'Evaluación Personal  Parte 5', questions: transformedQuestions.filter(q => Number(q.number) >= 41 && Number(q.number) <= 50) },
+        { title: 'Evaluación Personal  Parte 6', questions: transformedQuestions.filter(q => Number(q.number) >= 51 && Number(q.number) <= 60) },
+        { title: 'Evaluación Personal  Parte 7', questions: transformedQuestions.filter(q => Number(q.number) >= 61 && Number(q.number) <= 70) },
+        { title: 'Evaluación Personal  Parte 8', questions: transformedQuestions.filter(q => Number(q.number) >= 71 && Number(q.number) <= 80) },
+        { title: 'Evaluación Personal  Parte 9', questions: transformedQuestions.filter(q => Number(q.number) >= 81 && Number(q.number) <= 90) },
+        { title: 'Evaluación Personal  Parte 10', questions: transformedQuestions.filter(q => Number(q.number) >= 91 && Number(q.number) <= 96) },
       ];
       const dynamicSection = { title: 'Evaluación Personal', questions: transformedQuestions };
       this.surveySections = this.surveySections.concat(dynamicSections);
@@ -158,9 +170,6 @@ export class SurveyWizardComponent implements OnInit {
         this.surveyForm.addControl(question.controlName, this.fb.control('', Validators.required));
       });
 
-      this.surveyForm.addControl('age', this.fb.control(null, [Validators.required, Validators.min(1), Validators.max(99)]));
-
-      console.log(this.surveySections)
     });
   }
 
@@ -193,12 +202,27 @@ export class SurveyWizardComponent implements OnInit {
       this.currentStep++;
     } else {
       // Último paso: aquí se envía el formulario.
-      const trimmedValues: { [key: string]: any } = {}; 
+      const trimmedValues: { [key: string]: any } = {};
       Object.keys(this.surveyForm.value).forEach(key => {
         const value = this.surveyForm.value[key];
         trimmedValues[key] = (typeof value === 'string') ? value.trim() : value;
       });
-      console.log('Enviando respuestas:', this.surveyForm.value, trimmedValues);
+      Swal.fire({
+        title: '¡Éxito!',
+        text: 'El formulario ha sido enviado correctamente.',
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      }).then(() => {
+        // Reinicia el formulario
+        this.surveyForm.reset({ documentType: '' });
+        this.surveyForm.reset({ gender: '' });
+        this.surveyForm.reset({ educationLevel: '' });
+        this.surveyForm.reset({ programYear: '' });
+        // Reiniciar el step a la primera sección (si aplica)
+        this.currentStep = 0;
+        console.log('Enviando respuestas:', this.surveyForm.value, trimmedValues);
+
+      });
       // Implementa la lógica para enviar a Firebase o tu backend.
     }
   }
