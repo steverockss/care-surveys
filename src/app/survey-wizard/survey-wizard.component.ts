@@ -11,6 +11,7 @@ export const COMMON_OPTIONS = [ { text: 'Seleccione una opción', value: '' }, {
 { text: 'De acuerdo', value: 4 },
 { text: 'Totalmente de acuerdo', value: 5 }];
 import { Question, QuestionService } from '../services/questions.service';
+import { SurveyService } from '../services/surveys.service';
 
 interface SurveySection {
   title: string;
@@ -121,7 +122,7 @@ export class SurveyWizardComponent implements OnInit {
     // Aquí puedes agregar las demás secciones según lo requieras.
   ];
 
-  constructor(private fb: FormBuilder, private questionService: QuestionService) {
+  constructor(private fb: FormBuilder, private questionService: QuestionService, private surveyService: SurveyService) {
     this.surveyForm = this.fb.group({});
   }
 
@@ -207,23 +208,40 @@ export class SurveyWizardComponent implements OnInit {
         const value = this.surveyForm.value[key];
         trimmedValues[key] = (typeof value === 'string') ? value.trim() : value;
       });
+      const formValues = this.surveyForm.value;
+    const questions: { [key: string]: any } = {};
+    const demographicData: { [key: string]: any } = {};
+
+    // Separamos las respuestas de las preguntas (cuya key empieza con 'q') de los demás campos.
+    Object.keys(formValues).forEach(key => {
+      if (key.startsWith('q')) {
+        questions[key] = formValues[key];
+      } else {
+        demographicData[key] = formValues[key];
+      }
+    });
+
+    // Combinamos la información, asignando las preguntas agrupadas en "questions"
+    const finalData = {
+      ...demographicData,
+      questions: questions,
+      timestamp: new Date().toISOString() // agregamos timestamp en caso de ser necesario
+    };
       Swal.fire({
         title: '¡Éxito!',
         text: 'El formulario ha sido enviado correctamente.',
         icon: 'success',
         confirmButtonText: 'Aceptar'
       }).then(() => {
-        // Reinicia el formulario
-        this.surveyForm.reset({ documentType: '' });
-        this.surveyForm.reset({ gender: '' });
-        this.surveyForm.reset({ educationLevel: '' });
-        this.surveyForm.reset({ programYear: '' });
-        // Reiniciar el step a la primera sección (si aplica)
-        this.currentStep = 0;
-        console.log('Enviando respuestas:', this.surveyForm.value, trimmedValues);
-
+        this.surveyService.addSurvey(finalData).then(() => {
+          // Si la operación fue exitosa, recarga la página
+          window.location.reload();
+        })
+        .catch((error) => {
+          // Si ocurrió un error, lo muestra en consola
+          console.log('Error al enviar la encuesta:', error);
+        });
       });
-      // Implementa la lógica para enviar a Firebase o tu backend.
     }
   }
 

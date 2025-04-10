@@ -26,6 +26,8 @@
 
   <!-- Formulario reactivo para la sección actual -->
   <form [formGroup]="surveyForm">
+
+    
     <div *ngFor="let question of surveySections[currentStep].questions" class="mb-3">
       <!-- Aplicamos negrita y márgenes verticales -->
       <label *ngIf = "question.type !== 'info' && question.type !== 'checkbox'" class="form-label fw-bold my-2">{{ question.label }}</label>
@@ -33,6 +35,8 @@
       <!-- Usamos ngSwitch para diferenciar el tipo de input -->
       <ng-container [ngSwitch]="question.type">
         <!-- Campo de texto -->
+
+        
         <input
           *ngSwitchCase="'text'"
           [attr.type]="question.type"
@@ -73,7 +77,7 @@
          [ngClass]="{'is-invalid': surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched}"
         [formControlName]="question.controlName"
       >
-        <option *ngFor="let option of question.options" [value]="option.value">
+        <option *ngFor="let option of question.options" [ngValue]="option.value">
           {{ option.text || 'Seleccione una opción' }}
         </option>
         <div *ngIf="surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched" class="text-danger">
