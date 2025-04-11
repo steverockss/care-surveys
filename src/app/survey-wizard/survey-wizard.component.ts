@@ -225,23 +225,26 @@ export class SurveyWizardComponent implements OnInit {
     const finalData = {
       ...demographicData,
       questions: questions,
+      surveyType: 'inicial',
       timestamp: new Date().toISOString() // agregamos timestamp en caso de ser necesario
     };
+    this.surveyService.addSurvey(finalData).then(() => {
+      // Si la operación fue exitosa, recarga la página
       Swal.fire({
         title: '¡Éxito!',
         text: 'El formulario ha sido enviado correctamente.',
         icon: 'success',
         confirmButtonText: 'Aceptar'
-      }).then(() => {
-        this.surveyService.addSurvey(finalData).then(() => {
-          // Si la operación fue exitosa, recarga la página
-          window.location.reload();
-        })
-        .catch((error) => {
-          // Si ocurrió un error, lo muestra en consola
-          console.log('Error al enviar la encuesta:', error);
-        });
-      });
+      }).then(() =>{
+        window.location.reload();
+
+      })
+    })
+    .catch((error) => {
+      // Si ocurrió un error, lo muestra en consola
+      console.log('Error al enviar la encuesta:', error);
+    });
+
     }
   }
 

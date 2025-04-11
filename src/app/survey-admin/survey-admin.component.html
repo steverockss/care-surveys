@@ -1,0 +1,43 @@
+<div class="container mt-4">
+    <h2>Administrar Encuestas</h2>
+  
+    <div *ngIf="loading" class="alert alert-info">
+      Cargando encuestas...
+    </div>
+    <div class="table-responsive">
+        <table *ngIf="!loading" class="table table-bordered mt-3">
+            <thead>
+              <tr>
+                <th>ID del Estudiante</th>
+                <th>Nombre</th>
+                <th>Encuesta Inicial</th>
+                <th>Encuesta Secundaria</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let student of studentSurveys">
+                <td>{{ student.documentNumber }}</td>
+                <td>{{ student.fullName }}</td>
+                <td>
+                  <!-- Si existe la encuesta inicial, se muestran los botones -->
+                  <ng-container *ngIf="student.initialSurveyId; else noInitial">
+                    <button class="btn btn-sm btn-primary me-1" (click)="editSurvey(student.initialSurveyId)">Editar</button>
+                    <button class="btn btn-sm btn-danger" (click)="deleteSurvey(student.initialSurveyId)">Eliminar</button>
+                  </ng-container>
+                  <ng-template #noInitial>No</ng-template>
+                </td>
+                <td>
+                  <!-- Si existe la encuesta secundaria, se muestran los botones -->
+                  <ng-container *ngIf="student.secondarySurveyId; else noSecondary">
+                    <button class="btn btn-sm btn-primary me-1" (click)="editSurvey(student.secondarySurveyId)">Editar</button>
+                    <button class="btn btn-sm btn-danger" (click)="deleteSurvey(student.secondarySurveyId)">Eliminar</button>
+                  </ng-container>
+                  <ng-template #noSecondary>No</ng-template>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+    </div>
+
+  </div>
+  
