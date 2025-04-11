@@ -73,7 +73,7 @@ export class SurveyWizardComponent implements OnInit {
       ]
     },
     {
-      title: 'Información Demográfica',
+      title: 'Información demográfica',
       questions: [
         { label: 'Nombre completo', controlName: 'fullName', type: 'text', placeholder: 'Ingresa tu nombre completo' },
         { label: 'Edad', controlName: 'age', type: 'number', placeholder: 'Ingresa tu edad' },
@@ -131,16 +131,17 @@ export class SurveyWizardComponent implements OnInit {
     // Crear controles del formulario para cada pregunta de cada sección.
     this.surveySections.forEach(section => {
       section.questions.forEach(question => {
-        let defaultValue: any = '';
-        this.surveyForm.addControl(question.controlName, this.fb.control(defaultValue, Validators.required));
+        if (question.controlName) {
+          let defaultValue: any = '';
+          this.surveyForm.addControl(question.controlName, this.fb.control(defaultValue, Validators.required));
+         }
+       
       });
     });
 
     // Llamada única al service para obtener las preguntas desde Firestore.
     this.questionService.getQuestions().subscribe(data => {
       this.questions = data;
-      console.log('Preguntas obtenidas:', this.questions);
-
 
       const transformedQuestions = data.sort((a, b) => Number(a.code) - Number(b.code))
         .map(q => ({
@@ -153,23 +154,23 @@ export class SurveyWizardComponent implements OnInit {
         }));
 
       const dynamicSections: SurveySection[] = [
-        { title: 'Evaluación Personal  Parte 1', questions: transformedQuestions.filter(q => Number(q.number) >= 1 && Number(q.number) <= 10) },
-        { title: 'Evaluación Personal  Parte 2', questions: transformedQuestions.filter(q => Number(q.number) >= 11 && Number(q.number) <= 20) },
-        { title: 'Evaluación Personal  Parte 3', questions: transformedQuestions.filter(q => Number(q.number) >= 21 && Number(q.number) <= 30) },
-        { title: 'Evaluación Personal  Parte 4', questions: transformedQuestions.filter(q => Number(q.number) >= 31 && Number(q.number) <= 40) },
-        { title: 'Evaluación Personal  Parte 5', questions: transformedQuestions.filter(q => Number(q.number) >= 41 && Number(q.number) <= 50) },
-        { title: 'Evaluación Personal  Parte 6', questions: transformedQuestions.filter(q => Number(q.number) >= 51 && Number(q.number) <= 60) },
-        { title: 'Evaluación Personal  Parte 7', questions: transformedQuestions.filter(q => Number(q.number) >= 61 && Number(q.number) <= 70) },
-        { title: 'Evaluación Personal  Parte 8', questions: transformedQuestions.filter(q => Number(q.number) >= 71 && Number(q.number) <= 80) },
-        { title: 'Evaluación Personal  Parte 9', questions: transformedQuestions.filter(q => Number(q.number) >= 81 && Number(q.number) <= 90) },
-        { title: 'Evaluación Personal  Parte 10', questions: transformedQuestions.filter(q => Number(q.number) >= 91 && Number(q.number) <= 96) },
+        { title: 'Evaluación personal parte 1', questions: transformedQuestions.filter(q => Number(q.number) >= 1 && Number(q.number) <= 10) },
+        { title: 'Evaluación personal parte 2', questions: transformedQuestions.filter(q => Number(q.number) >= 11 && Number(q.number) <= 20) },
+        { title: 'Evaluación personal parte 3', questions: transformedQuestions.filter(q => Number(q.number) >= 21 && Number(q.number) <= 30) },
+        { title: 'Evaluación personal parte 4', questions: transformedQuestions.filter(q => Number(q.number) >= 31 && Number(q.number) <= 40) },
+        { title: 'Evaluación personal parte 5', questions: transformedQuestions.filter(q => Number(q.number) >= 41 && Number(q.number) <= 50) },
+        { title: 'Evaluación personal parte 6', questions: transformedQuestions.filter(q => Number(q.number) >= 51 && Number(q.number) <= 60) },
+        { title: 'Evaluación personal parte 7', questions: transformedQuestions.filter(q => Number(q.number) >= 61 && Number(q.number) <= 70) },
+        { title: 'Evaluación personal parte 8', questions: transformedQuestions.filter(q => Number(q.number) >= 71 && Number(q.number) <= 80) },
+        { title: 'Evaluación personal parte 9', questions: transformedQuestions.filter(q => Number(q.number) >= 81 && Number(q.number) <= 90) },
+        { title: 'Evaluación personal parte 10', questions: transformedQuestions.filter(q => Number(q.number) >= 91 && Number(q.number) <= 96) },
       ];
       const dynamicSection = { title: 'Evaluación Personal', questions: transformedQuestions };
       this.surveySections = this.surveySections.concat(dynamicSections);
-
       dynamicSection.questions.forEach(question => {
         this.surveyForm.addControl(question.controlName, this.fb.control('', Validators.required));
       });
+
 
     });
   }
@@ -198,6 +199,7 @@ export class SurveyWizardComponent implements OnInit {
       control.setValue(control.value.toUpperCase());
     }
   }
+
   nextStep() {
     if (this.currentStep < this.surveySections.length - 1) {
       this.currentStep++;
@@ -228,6 +230,7 @@ export class SurveyWizardComponent implements OnInit {
       surveyType: 'inicial',
       timestamp: new Date().toISOString() // agregamos timestamp en caso de ser necesario
     };
+    console.log(finalData);
     this.surveyService.addSurvey(finalData).then(() => {
       // Si la operación fue exitosa, recarga la página
       Swal.fire({
