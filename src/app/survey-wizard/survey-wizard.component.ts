@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 // src/app/survey-wizard/survey-wizard.constants.ts
 
-export const COMMON_OPTIONS = [ { text: 'Seleccione una opción', value: '' }, { text: 'Totalmente en desacuerdo', value: 1 },
+export const COMMON_OPTIONS = [ { text: 'Selecciona una opción', value: '' }, { text: 'Totalmente en desacuerdo', value: 1 },
 { text: 'Desacuerdo', value: 2 },
 { text: 'Indiferente', value: 3 },
 { text: 'De acuerdo', value: 4 },
@@ -96,6 +96,16 @@ export class SurveyWizardComponent implements OnInit {
           ]
         },
         { label: 'Número de documento', controlName: 'documentNumber', type: 'text', placeholder: 'Ingresa tu número de documento' },
+        {
+          label: 'Tipo de encuesta',
+          type: 'select',
+          controlName: 'surveyType',
+          options: [
+            '',
+            'Inicial',
+            'Final'
+          ]
+        },
         { label: 'Nacionalidad', controlName: 'nationality', type: 'text', placeholder: 'Ingresa tu nacionalidad' },
         { label: 'Ciudad', controlName: 'city', type: 'text', placeholder: 'Ingresa tu ciudad' },
         { label: 'Localidad', controlName: 'locality', type: 'text', placeholder: 'Ingresa tu localidad' },
@@ -227,7 +237,6 @@ export class SurveyWizardComponent implements OnInit {
     const finalData = {
       ...demographicData,
       questions: questions,
-      surveyType: 'inicial',
       timestamp: new Date().toISOString() // agregamos timestamp en caso de ser necesario
     };
     console.log(finalData);
@@ -254,7 +263,10 @@ export class SurveyWizardComponent implements OnInit {
   isCurrentSectionValid(): boolean {
     let valid = true;
     this.surveySections[this.currentStep].questions.forEach(question => {
-      if (this.surveyForm.get(question.controlName)?.invalid) {
+      const control = this.surveyForm.get(question.controlName);
+      if (question.controlName === 'acceptDataPolicy' && control?.value !== true) {
+        valid = false;
+      } else if (control?.invalid) {
         valid = false;
       }
     });

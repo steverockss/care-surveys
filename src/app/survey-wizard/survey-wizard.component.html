@@ -64,7 +64,7 @@
           [formControlName]="question.controlName"
         >
           <option *ngFor="let option of question.options" [value]="option">
-            {{ option || 'Seleccione una opción' }}
+            {{ option || 'Selecciona una opción' }}
           </option>
         </select>
         <div *ngIf="surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched" class="text-danger">
@@ -78,7 +78,7 @@
         [formControlName]="question.controlName"
       >
         <option *ngFor="let option of question.options" [ngValue]="option.value">
-          {{ option.text || 'Seleccione una opción' }}
+          {{ option.text || 'Selecciona una opción' }}
         </option>
         <div *ngIf="surveyForm.get(question.controlName)?.invalid && surveyForm.get(question.controlName)?.touched" class="text-danger">
           Este campo es obligatorio.
@@ -97,16 +97,21 @@
     </div>
   </form>
 
+
   <!-- Botones de navegación -->
-  <div class="d-flex justify-content-between my-4">
-    <button   *ngIf="currentStep > 0" class="btn btn-secondary" (click)="previousStep()">
-      Anterior
+  <div class="d-flex justify-content-between mt-4">
+    <button   *ngIf="currentStep > 0" 
+      class="btn btn-secondary" 
+      (click)="previousStep()"
+      >
+      <i class="fa fa-arrow-left me-2"></i> Anterior
     </button>
-    <button *ngIf="currentStep == 0" class="btn btn-primary mt-5" (click)="nextStep() "  [disabled]="!isCurrentSectionValid()" >
-      Acepto
-    </button>
-    <button *ngIf="currentStep >= 1" class="btn btn-primary" (click)="nextStep()"  >
-      {{ currentStep === surveySections.length - 1 ? 'Enviar' : 'Siguiente' }}
+    <button class="btn btn-primary btn-custom d-flex align-items-center" (click)="nextStep()" [disabled]="!isCurrentSectionValid()">
+        {{ currentStep === surveySections.length - 1 ? 'Enviar' : 'Siguiente' }}
+        
+        <i class="fa" 
+        [ngClass]="currentStep === surveySections.length - 1 ? 'fa fa-paper-plane' : 'fa fa-arrow-right'" 
+        class="ms-2"></i>
     </button>
   </div>
 </div>
