@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where } from '@angular/fire/firestore';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SurveyService {
+
+  private surveyCache: Map<string, any> = new Map<string, any>();
 
   constructor(private firestore: Firestore) { }
 
@@ -78,6 +80,32 @@ export class SurveyService {
       console.log('Encuesta eliminada correctamente.');
     } catch (error) {
       console.error('Error al eliminar la encuesta:', error);
+      throw error;
+    }
+  }
+
+  async getSurveyByDocumentNumber(documentNumber: string): Promise<any> {
+
+    if (this.surveyCache.has(documentNumber)) {
+      return this.surveyCache.get(documentNumber);
+    }
+    try {
+      const surveysCollectionRef = collection(this.firestore, 'surveys');
+      // Creamos una consulta que busque encuestas con el número de documento especificado
+      const q = query(surveysCollectionRef, where('documentNumber', '==', documentNumber));
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        throw new Error('No se encontró la encuesta con ese número de documento');
+      }
+      
+      // Si se espera que el número de documento sea único, retornamos la primera encuesta encontrada.
+      const surveyDoc = querySnapshot.docs[0];
+      const result = { id: surveyDoc.id, ...surveyDoc.data() };
+      this.surveyCache.set(documentNumber, result);
+      return result;
+    } catch (error) {
+      console.error('Error al obtener la encuesta:', error);
       throw error;
     }
   }

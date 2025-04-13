@@ -11,7 +11,7 @@
                 <th>ID del Estudiante</th>
                 <th>Nombre</th>
                 <th>Encuesta Inicial</th>
-                <th>Encuesta Secundaria</th>
+                <th>Encuesta Final</th>
               </tr>
             </thead>
             <tbody>
@@ -27,7 +27,7 @@
                   <ng-template #noInitial>No</ng-template>
                 </td>
                 <td>
-                  <!-- Si existe la encuesta secundaria, se muestran los botones -->
+                  <!-- Si existe la encuesta final, se muestran los botones -->
                   <ng-container *ngIf="student.secondarySurveyId; else noSecondary">
                     <button class="btn btn-sm btn-primary me-1" (click)="editSurvey(student.secondarySurveyId)">Editar</button>
                     <button class="btn btn-sm btn-danger" (click)="deleteSurvey(student.secondarySurveyId)">Eliminar</button>

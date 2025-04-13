@@ -56,9 +56,9 @@ export class SurveyAdminComponent implements OnInit {
         };
       }
       // Asumimos que survey.surveyType puede ser 'inicial' o 'secundaria'
-      if (survey.surveyType === 'inicial') {
+      if ( survey.surveyType.toLowerCase() === 'inicial') {
         groups[docNum].initialSurveyId = survey.id;
-      } else if (survey.surveyType === 'secundaria') {
+      } else if (survey.surveyType.toLowerCase() === 'final') {
         groups[docNum].secondarySurveyId = survey.id;
       }
     });

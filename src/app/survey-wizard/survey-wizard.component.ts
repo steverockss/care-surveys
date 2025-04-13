@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 // src/app/survey-wizard/survey-wizard.constants.ts
 
-export const COMMON_OPTIONS = [ { text: 'Selecciona una opción', value: '' }, { text: 'Totalmente en desacuerdo', value: 1 },
+export const COMMON_OPTIONS = [{ text: 'Selecciona una opción', value: '' }, { text: 'Totalmente en desacuerdo', value: 1 },
 { text: 'Desacuerdo', value: 2 },
 { text: 'Indiferente', value: 3 },
 { text: 'De acuerdo', value: 4 },
@@ -17,7 +17,6 @@ interface SurveySection {
   title: string;
   questions: any[];
 }
-
 @Component({
   selector: 'app-survey-wizard',
   standalone: true,
@@ -30,6 +29,7 @@ export class SurveyWizardComponent implements OnInit {
   surveyForm: FormGroup;
   currentStep: number = 0;
   questions: Question[] = [];
+  extraQuestionsAdded: boolean = false;
 
 
   // Definición de secciones: la primera es la parte demográfica y luego van las secciones de preguntas.
@@ -75,14 +75,6 @@ export class SurveyWizardComponent implements OnInit {
     {
       title: 'Información demográfica',
       questions: [
-        { label: 'Nombre completo', controlName: 'fullName', type: 'text', placeholder: 'Ingresa tu nombre completo' },
-        { label: 'Edad', controlName: 'age', type: 'number', placeholder: 'Ingresa tu edad' },
-        {
-          label: 'Género',
-          controlName: 'gender',
-          type: 'select',
-          options: ['', 'Masculino', 'Femenino', 'Otro']
-        },
         {
           label: 'Tipo de documento',
           type: 'select',
@@ -105,27 +97,6 @@ export class SurveyWizardComponent implements OnInit {
             'Inicial',
             'Final'
           ]
-        },
-        { label: 'Nacionalidad', controlName: 'nationality', type: 'text', placeholder: 'Ingresa tu nacionalidad' },
-        { label: 'Ciudad', controlName: 'city', type: 'text', placeholder: 'Ingresa tu ciudad' },
-        { label: 'Localidad', controlName: 'locality', type: 'text', placeholder: 'Ingresa tu localidad' },
-        { label: 'Institución educativa - Colegio', controlName: 'school', type: 'text', placeholder: 'Ingresa el nombre de tu colegio' },
-        {
-          label: 'Nivel educativo',
-          controlName: 'educationLevel',
-          type: 'select',
-          options: ['', 'Preescolar', 'Primaria', 'Bachillerato', 'Universidad']
-        },
-        {
-          label: 'Año que ingreso al programa',
-          type: 'select',
-          controlName: 'programYear',
-          options: [
-            '',
-            '2023',
-            '2024',
-            '2025'
-          ]
         }
       ]
     },
@@ -144,8 +115,8 @@ export class SurveyWizardComponent implements OnInit {
         if (question.controlName) {
           let defaultValue: any = '';
           this.surveyForm.addControl(question.controlName, this.fb.control(defaultValue, Validators.required));
-         }
-       
+        }
+
       });
     });
 
@@ -162,25 +133,128 @@ export class SurveyWizardComponent implements OnInit {
           type: 'question_select',
           options: COMMON_OPTIONS,
         }));
-
-      const dynamicSections: SurveySection[] = [
-        { title: 'Evaluación personal parte 1', questions: transformedQuestions.filter(q => Number(q.number) >= 1 && Number(q.number) <= 10) },
-        { title: 'Evaluación personal parte 2', questions: transformedQuestions.filter(q => Number(q.number) >= 11 && Number(q.number) <= 20) },
-        { title: 'Evaluación personal parte 3', questions: transformedQuestions.filter(q => Number(q.number) >= 21 && Number(q.number) <= 30) },
-        { title: 'Evaluación personal parte 4', questions: transformedQuestions.filter(q => Number(q.number) >= 31 && Number(q.number) <= 40) },
-        { title: 'Evaluación personal parte 5', questions: transformedQuestions.filter(q => Number(q.number) >= 41 && Number(q.number) <= 50) },
-        { title: 'Evaluación personal parte 6', questions: transformedQuestions.filter(q => Number(q.number) >= 51 && Number(q.number) <= 60) },
-        { title: 'Evaluación personal parte 7', questions: transformedQuestions.filter(q => Number(q.number) >= 61 && Number(q.number) <= 70) },
-        { title: 'Evaluación personal parte 8', questions: transformedQuestions.filter(q => Number(q.number) >= 71 && Number(q.number) <= 80) },
-        { title: 'Evaluación personal parte 9', questions: transformedQuestions.filter(q => Number(q.number) >= 81 && Number(q.number) <= 90) },
-        { title: 'Evaluación personal parte 10', questions: transformedQuestions.filter(q => Number(q.number) >= 91 && Number(q.number) <= 96) },
-      ];
+        const sectionSize = 5; // 5 preguntas por sección
+        const totalQuestions = transformedQuestions.length;
+        const totalSections = Math.ceil(totalQuestions / sectionSize);
+        
+        const dynamicSections = [];
+        for (let i = 0; i < totalSections; i++) {
+          dynamicSections.push({
+            title: '',
+            questions: transformedQuestions.slice(i * sectionSize, (i + 1) * sectionSize)
+          });
+        }
       const dynamicSection = { title: 'Evaluación Personal', questions: transformedQuestions };
       this.surveySections = this.surveySections.concat(dynamicSections);
       dynamicSection.questions.forEach(question => {
+        console.log(question.controlName)
         this.surveyForm.addControl(question.controlName, this.fb.control('', Validators.required));
       });
+      const extraQuestions = [{ label: 'Nombre completo', controlName: 'fullName', type: 'text', placeholder: 'Ingresa tu nombre completo' },
+      { label: 'Edad', controlName: 'age', type: 'number', placeholder: 'Ingresa tu edad' },
+      {
+        label: 'Género',
+        controlName: 'gender',
+        type: 'select',
+        options: ['', 'Masculino', 'Femenino', 'Otro']
+      },
+      { label: 'Nacionalidad', controlName: 'nationality', type: 'text', placeholder: 'Ingresa tu nacionalidad' },
+      { label: 'Ciudad', controlName: 'city', type: 'text', placeholder: 'Ingresa tu ciudad' },
+      { label: 'Localidad', controlName: 'locality', type: 'text', placeholder: 'Ingresa tu localidad' },
+      { label: 'Institución educativa - Colegio', controlName: 'school', type: 'text', placeholder: 'Ingresa el nombre de tu colegio' },
+      {
+        label: 'Nivel educativo',
+        controlName: 'educationLevel',
+        type: 'select',
+        options: ['', 'Preescolar', 'Primaria', 'Bachillerato', 'Universidad']
+      },
+      {
+        label: 'Año que ingreso al programa',
+        type: 'select',
+        controlName: 'programYear',
+        options: [
+          '',
+          '2023',
+          '2024',
+          '2025'
+        ]
+      }
+      ]
+      extraQuestions.forEach(question => {
+        if (question.controlName == 'nationality' || question.controlName == 'city' || question.controlName == 'school' || question.controlName == 'school') {
+          this.surveyForm.addControl(question.controlName, this.fb.control('', [Validators.required, Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/)]));
+        } else {
 
+          this.surveyForm.addControl(question.controlName, this.fb.control('', Validators.required));
+        }
+      });
+
+      this.surveyForm.valueChanges.subscribe((formValues) => {
+        console.log(formValues)
+        if (formValues["documentType"] && formValues["documentNumber"] && formValues["surveyType"].toLowerCase() == 'inicial') {
+          this.surveyService.getSurveyByDocumentNumber(formValues["documentNumber"])
+            .then(surveyData => {
+              Swal.fire({
+                title: '¡Advertencia!',
+                icon: 'warning',
+                html: `
+                <strong>Has seleccionado la encuesta inicial.</strong><br><br>
+                Sin embargo, ya se encontró un registro de una encuesta inicial para el número de documento ingresado.<br>
+                Por favor, revisa .
+              `,
+                confirmButtonText: 'Aceptar'
+              })
+            }).catch(error => {
+              if (!this.extraQuestionsAdded) {
+
+                this.surveySections[1].questions.push(...extraQuestions);
+                this.extraQuestionsAdded = true;
+              }
+            });
+
+
+
+        } else if (formValues["documentType"] && formValues["documentNumber"] && formValues["surveyType"].toLowerCase() == 'final') {
+          this.surveyService.getSurveyByDocumentNumber(formValues["documentNumber"])
+            .then(surveyData => {
+
+              if (!this.extraQuestionsAdded) {
+
+                this.surveySections[1].questions.push(...extraQuestions);
+                this.extraQuestionsAdded = true;
+              }
+
+              this.surveyForm.patchValue({
+                fullName: surveyData.fullName,
+                age: surveyData.age,
+                gender: surveyData.gender,
+                nationality: surveyData.nationality,
+                city: surveyData.city,
+                locality: surveyData.locality,
+                school: surveyData.locality,
+                programYear: surveyData.programYear,
+                educationLevel: surveyData.educationLevel,
+              }, { emitEvent: false });
+
+            })
+            .catch(error => {
+              this.surveyForm.get('surveyType')?.reset('');
+              Swal.fire({
+                title: '¡Advertencia!',
+                text: 'Has seleccionado la encuesta final, pero no se encontró ningún registro de una encuesta inicial para el número de documento ingresado. Por favor, revisa y corrige los datos.',
+                icon: 'warning',
+                confirmButtonText: 'Aceptar'
+              })
+              console.error("Error al obtener la encuesta:", error);
+            });
+        }
+
+
+
+        console.log('Cambios en el formulario:', formValues);
+        // Aquí puedes ejecutar otras acciones según lo que se vaya ingresando
+
+      });
 
     });
   }
@@ -221,41 +295,41 @@ export class SurveyWizardComponent implements OnInit {
         trimmedValues[key] = (typeof value === 'string') ? value.trim() : value;
       });
       const formValues = this.surveyForm.value;
-    const questions: { [key: string]: any } = {};
-    const demographicData: { [key: string]: any } = {};
+      const questions: { [key: string]: any } = {};
+      const demographicData: { [key: string]: any } = {};
 
-    // Separamos las respuestas de las preguntas (cuya key empieza con 'q') de los demás campos.
-    Object.keys(formValues).forEach(key => {
-      if (key.startsWith('q')) {
-        questions[key] = formValues[key];
-      } else {
-        demographicData[key] = formValues[key];
-      }
-    });
+      // Separamos las respuestas de las preguntas (cuya key empieza con 'q') de los demás campos.
+      Object.keys(formValues).forEach(key => {
+        if (key.startsWith('q')) {
+          questions[key] = formValues[key];
+        } else {
+          demographicData[key] = formValues[key];
+        }
+      });
 
-    // Combinamos la información, asignando las preguntas agrupadas en "questions"
-    const finalData = {
-      ...demographicData,
-      questions: questions,
-      timestamp: new Date().toISOString() // agregamos timestamp en caso de ser necesario
-    };
-    console.log(finalData);
-    this.surveyService.addSurvey(finalData).then(() => {
-      // Si la operación fue exitosa, recarga la página
-      Swal.fire({
-        title: '¡Éxito!',
-        text: 'El formulario ha sido enviado correctamente.',
-        icon: 'success',
-        confirmButtonText: 'Aceptar'
-      }).then(() =>{
-        window.location.reload();
+      // Combinamos la información, asignando las preguntas agrupadas en "questions"
+      const finalData = {
+        ...demographicData,
+        questions: questions,
+        timestamp: new Date().toISOString() // agregamos timestamp en caso de ser necesario
+      };
+      console.log(finalData);
+      this.surveyService.addSurvey(finalData).then(() => {
+        // Si la operación fue exitosa, recarga la página
+        Swal.fire({
+          title: '¡Éxito!',
+          text: 'El formulario ha sido enviado correctamente.',
+          icon: 'success',
+          confirmButtonText: 'Aceptar'
+        }).then(() => {
+          window.location.reload();
 
+        })
       })
-    })
-    .catch((error) => {
-      // Si ocurrió un error, lo muestra en consola
-      console.log('Error al enviar la encuesta:', error);
-    });
+        .catch((error) => {
+          // Si ocurrió un error, lo muestra en consola
+          console.log('Error al enviar la encuesta:', error);
+        });
 
     }
   }
