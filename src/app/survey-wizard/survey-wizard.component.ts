@@ -147,7 +147,6 @@ export class SurveyWizardComponent implements OnInit {
       const dynamicSection = { title: 'Evaluación Personal', questions: transformedQuestions };
       this.surveySections = this.surveySections.concat(dynamicSections);
       dynamicSection.questions.forEach(question => {
-        console.log(question.controlName)
         this.surveyForm.addControl(question.controlName, this.fb.control('', Validators.required));
       });
       const extraQuestions = [{ label: 'Nombre completo', controlName: 'fullName', type: 'text', placeholder: 'Ingresa tu nombre completo' },

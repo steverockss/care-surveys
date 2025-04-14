@@ -1,7 +1,10 @@
-<p>linear-char works!</p>
-<div class="text-center my-4">
-    <h3>Prueba de Font Awesome</h3>
-    <p>Si el icono se muestra correctamente, significa que Font Awesome está funcionando.</p>
-    <!-- Icono de verificación grande -->
-    <i class="fas fa-check fa-3x"></i>
+<div class="container">
+  <!-- Contenedor del gráfico -->
+  <div 
+    echarts 
+    [options]="chartOption" 
+    (chartInit)="onChartInit($event)"
+    class="demo-chart" 
+    style="height: 400px; width: 100%; margin-top: 20px;">
   </div>
+</div>
