@@ -2,9 +2,10 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
 import { SurveyService } from '../../services/surveys.service';
-import { FormsModule }   from '@angular/forms'; 
+import { FormsModule } from '@angular/forms';
 import { SurveyFilters } from '../../models/survery-filters'
 import Swal from 'sweetalert2';
+import { calculateAverage, getCategoryByQuestionNumber } from '../../utils/survery-utils';
 
 @Component({
   selector: 'app-linear-chart',
@@ -93,18 +94,7 @@ export class LinearChartComponent implements OnInit {
     this.chartInstance = ec;
   }
 
-  getCategoryByQuestionNumber(questionNumber: number): number {
-    const ranges = [
-      { min: 1, max: 50, category: 1 },
-      { min: 51, max: 69, category: 2 },
-      { min: 70, max: 82, category: 3 },
-      { min: 82, max: 96, category: 4 }
-      // Agrega más rangos según sea necesario.
-    ];
 
-    const foundRange = ranges.find(range => questionNumber >= range.min && questionNumber <= range.max);
-    return foundRange ? foundRange.category : 0; // Retorna 0 si no se encontró ningún rango.
-  }
   private async loadSurveys(filters?: SurveyFilters) {
     // Llama a tu método adaptado getSurveys(filters)
     this.getAverageByCategory(filters)
@@ -138,7 +128,7 @@ export class LinearChartComponent implements OnInit {
 
   async getSurveys(filters?: SurveyFilters) {
     try {
-      return await  this.surveyService.getSurveys(filters);
+      return await this.surveyService.getSurveys(filters);
     } catch (err: any) {
       if (err.status === 404) {
         Swal.fire({
@@ -158,62 +148,23 @@ export class LinearChartComponent implements OnInit {
     }
   }
   // Método asíncrono para obtener los promedios por categoría de preguntas
-  async getAverageByCategory(filter?: SurveyFilters): Promise<{ [category: string]: number }> {
+  async getAverageByCategory(filter?: SurveyFilters) {
     try {
-      // Supongo que tienes un método que obtiene todas las encuestas
       const surveys = await this.getSurveys(filter); // Retorna un arreglo de encuestas
+      const promediosArray = calculateAverage(surveys)
 
-      // Objeto para agrupar los totales y conteos
-      const agrupacion: { [category: string]: { total: number; count: number } } = {};
+      let idx = 0;
+      if (filter?.city) {
+        idx = 1;
 
-      // Recorremos cada encuesta
-      surveys.forEach(survey => {
-        // Aseguramos que encuesta.questions es un arreglo
-        if (survey.questions && typeof survey.questions === 'object') {
-          Object.keys(survey.questions).forEach(questionKey => {
-            // Extrae y convierte el valor de la respuesta a número
-            const valorRespuesta = Number(survey.questions[questionKey]);
-
-            // Extrae el número de pregunta removiendo la letra inicial "q"
-            const questionNumber = Number(questionKey.replace(/^q/, ''));
-            // Asumimos que tienes una función para determinar la categoría a partir del número de pregunta
-            const categoriaNum = this.getCategoryByQuestionNumber(questionNumber);
-            const catKey = `${categoriaNum}`;
-
-
-            if (categoriaNum && !isNaN(valorRespuesta)) {
-              if (!agrupacion[catKey]) {
-                agrupacion[catKey] = { total: 0, count: 0 };
-              }
-              agrupacion[catKey].total += valorRespuesta;
-              agrupacion[catKey].count++;
-            }
-          });
-
-        }
-      });
-
-
-      // Calcular el promedio por cada categoría
-      const promedios: { [category: string]: number } = {};
-      Object.keys(agrupacion).forEach(categoria => {
-        promedios[categoria] = parseFloat((agrupacion[categoria].total / agrupacion[categoria].count).toFixed(2));
-      });
-      const categoriasOrdenadas = Object.keys(promedios).sort((a, b) => Number(a) - Number(b));
-      const promediosArray = categoriasOrdenadas.map(cat => promedios[cat]);
-        let idx = 0;
-     if(filter?.city){
-       idx = 1;
-
-     }
-     else if (filter?.school){
-      idx = 2;
-     }else if (filter?.group){
-      idx = 3
-     }
+      }
+      else if (filter?.school) {
+        idx = 2;
+      } else if (filter?.group) {
+        idx = 3
+      }
       this.updateSeries(promediosArray, idx);
-      
-      return promedios;
+
     } catch (error) {
       console.error('Error al obtener promedios por categoría:', error);
       throw error;

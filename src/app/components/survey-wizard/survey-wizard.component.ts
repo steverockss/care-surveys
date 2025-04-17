@@ -189,7 +189,6 @@ export class SurveyWizardComponent implements OnInit {
       });
 
       this.surveyForm.valueChanges.subscribe((formValues) => {
-        console.log(formValues)
         if (formValues["documentType"] && formValues["documentNumber"] && formValues["surveyType"].toLowerCase() == 'inicial') {
           this.surveyService.getSurveyByDocumentNumber(formValues["documentNumber"])
             .then(surveyData => {
@@ -259,10 +258,6 @@ export class SurveyWizardComponent implements OnInit {
             });
         }
 
-
-
-        console.log('Cambios en el formulario:', formValues);
-        // Aquí puedes ejecutar otras acciones según lo que se vaya ingresando
 
       });
 
