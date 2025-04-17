@@ -130,12 +130,15 @@ export class SurveyService {
       if (querySnapshot.empty) {
         throw new Error('No se encontró la encuesta con ese número de documento');
       }
+      const snap = await getDocs(q);
       
       // Si se espera que el número de documento sea único, retornamos la primera encuesta encontrada.
-      const surveyDoc = querySnapshot.docs[0];
-      const result = { id: surveyDoc.id, ...surveyDoc.data() };
-      this.surveyCache.set(documentNumber, result);
-      return result;
+      const results = snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      this.surveyCache.set(documentNumber, results);
+      return results;
     } catch (error) {
       console.error('Error al obtener la encuesta:', error);
       throw error;

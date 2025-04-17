@@ -10,8 +10,8 @@ export const COMMON_OPTIONS = [{ text: 'Selecciona una opción', value: '' }, { 
 { text: 'Indiferente', value: 3 },
 { text: 'De acuerdo', value: 4 },
 { text: 'Totalmente de acuerdo', value: 5 }];
-import { Question, QuestionService } from '../services/questions.service';
-import { SurveyService } from '../services/surveys.service';
+import { Question, QuestionService } from '../../services/questions.service';
+import { SurveyService } from '../../services/surveys.service';
 
 interface SurveySection {
   title: string;
@@ -216,7 +216,18 @@ export class SurveyWizardComponent implements OnInit {
         } else if (formValues["documentType"] && formValues["documentNumber"] && formValues["surveyType"].toLowerCase() == 'final') {
           this.surveyService.getSurveyByDocumentNumber(formValues["documentNumber"])
             .then(surveyData => {
-
+              if(surveyData.length == 2){
+                Swal.fire({
+                  title: '¡Advertencia!',
+                  icon: 'warning',
+                  html: `
+                  Se encontró un registro de una encuesta inicial y un registro de una encuesta final para el número de documento ingresado.<br>
+                  Por favor, revisa y vuelve a intentarlo .
+                `,
+                  confirmButtonText: 'Aceptar'
+                })
+                return;
+              }
               if (!this.extraQuestionsAdded) {
 
                 this.surveySections[1].questions.push(...extraQuestions);

@@ -1,9 +1,9 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
-import { SurveyService } from '../services/surveys.service';
+import { SurveyService } from '../../services/surveys.service';
 import { FormsModule }   from '@angular/forms'; 
-import { SurveyFilters } from '../models/survery-filters'
+import { SurveyFilters } from '../../models/survery-filters'
 import Swal from 'sweetalert2';
 
 @Component({
