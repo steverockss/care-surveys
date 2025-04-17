@@ -15,8 +15,39 @@
           <li class="nav-item">
             <a class="nav-link" routerLink="/administrar-encuestas">Administras encuestas</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" routerLink="/dashboard">Dashboard gráficas</a>
+          <li class="nav-item dropdown">
+            <a 
+              class="nav-link dropdown-toggle" 
+              href="#" 
+              id="graficaDropdown" 
+              role="button" 
+              data-bs-toggle="dropdown" 
+              aria-expanded="false"
+            >
+              Dashboard gráficas
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="graficaDropdown">
+              <li>
+                <a class="dropdown-item" routerLink="/graficas/linear">
+                  Gráfica lineal
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" routerLink="/graficas/columnas">
+                  Gráfica columnas agrupadas
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" routerLink="/graficas/areas">
+                  Gráfica áreas apiladas
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" routerLink="/graficas/calor">
+                  Mapa de calor
+                </a>
+              </li>
+            </ul>
           </li>
         </ul>
       </div>

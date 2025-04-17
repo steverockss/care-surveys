@@ -6,6 +6,6 @@ import { LinearChartComponent } from './linear-chart/linear-chart.component'
 export const routes: Routes = [
   { path: 'encuesta', component: SurveyWizardComponent },
   { path: 'administrar-encuestas', component: SurveyAdminComponent },
-  { path: 'dashboard', component: LinearChartComponent },
+  { path: 'graficas/linear', component: LinearChartComponent },
   { path: '**', redirectTo: '' }
 ];

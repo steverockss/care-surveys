@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where } from '@angular/fire/firestore';
-
+import { Firestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where, Query, DocumentData } from '@angular/fire/firestore';
+import {SurveyFilters} from '../models/survery-filters'
+import { HttpErrorResponse } from '@angular/common/http';
 @Injectable({
   providedIn: 'root'
 })
+
 export class SurveyService {
 
   private surveyCache: Map<string, any> = new Map<string, any>();
+
+  
 
   constructor(private firestore: Firestore) { }
 
@@ -34,12 +38,40 @@ export class SurveyService {
    * Obtiene todas las encuestas guardadas en la colección "surveys".
    * @returns Una promesa que se resuelve con un arreglo de encuestas.
    */
-  async getSurveys(): Promise<any[]> {
+  async getSurveys(filters?: SurveyFilters): Promise<any[]> {
     try {
-      const surveysCollection = collection(this.firestore, 'surveys');
-      const querySnapshot = await getDocs(surveysCollection);
-      // Convertimos cada documento en un objeto que incluye su ID.
+      const surveysCol      = collection(this.firestore, 'surveys');
+      let surveysQuery: Query<DocumentData> = surveysCol;
+  
+      // Si recibimos filtro de ciudad, añadimos un where('city', '==', ...)
+      if (filters?.city) {
+        surveysQuery = query(surveysQuery, where('city', '==', filters.city));
+      }
+      // Si recibimos filtro de institución, añadimos un where('institution', '==', ...)
+      if (filters?.school) {
+        surveysQuery = query(surveysQuery, where('school', '==', filters.school));
+      }
+      // Si recibimos filtro de grupo, añadimos un where('group', '==', ...)
+      if (filters?.group) {
+        surveysQuery = query(surveysQuery, where('group', '==', filters.group));
+      }
+  
+      // Ejecutamos la consulta (si no hay filtros, es un getDocs(surveysCol) implícito)
+      const querySnapshot = await getDocs(surveysQuery);
+  
+      // Convertimos cada documento en un objeto con su ID
       const surveys = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      // Si venimos con filtros y no hay resultados, lanzamos un 404
+      const hasAnyFilter = Boolean(filters?.city || filters?.school || filters?.group);
+      if (hasAnyFilter && surveys.length === 0) {
+        throw new HttpErrorResponse({
+          status: 404,
+          statusText: 'Not Found',
+          error: 'No surveys found for the given filter'
+        });
+      }
+
       return surveys;
     } catch (error) {
       console.error('Error al obtener las encuestas:', error);

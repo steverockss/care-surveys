@@ -2,11 +2,14 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
 import { SurveyService } from '../services/surveys.service';
+import { FormsModule }   from '@angular/forms'; 
+import { SurveyFilters } from '../models/survery-filters'
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-linear-chart',
   standalone: true,
-  imports: [CommonModule, NgxEchartsModule],
+  imports: [CommonModule, NgxEchartsModule, FormsModule],
   templateUrl: './linear-chart.component.html',
   styleUrls: ['./linear-chart.component.css'],
   providers: [
@@ -17,24 +20,18 @@ import { SurveyService } from '../services/surveys.service';
   ]
 })
 export class LinearChartComponent implements OnInit {
-
+  filterType: string = '';
+  filterValue: string = '';
   constructor(private surveyService: SurveyService) { }
-
-
-
-  ngOnInit(): void {
-    this.obtenerPromediosPorCategoria()
-  }
-  // Configuración inicial del gráfico
   chartOption: any = {
     title: {
-      text: 'Promedio global'
+      text: 'Gráfica lineal de promedios'
     },
     tooltip: {
       trigger: 'axis'
     },
     legend: {
-      data: ['Promedio Personal', 'Promedio Global']
+      data: ['Promedio ciudad', 'Promedio global', 'Promedio institución', 'Promedio grupo']
     },
     toolbox: {
       feature: {
@@ -60,13 +57,33 @@ export class LinearChartComponent implements OnInit {
     },
     series: [
       {
-        name: 'Promedio Global',
+        name: 'Promedio global',
         type: 'line',
         smooth: true,
-        data: [28, 48, 40, 19, 86]
-      }
+      },
+      {
+        name: 'Promedio ciudad',
+        type: 'line',
+        smooth: true,
+      },
+      {
+        name: 'Promedio institución',
+        type: 'line',
+        smooth: true,
+      },
+      {
+        name: 'Promedio grupo',
+        type: 'line',
+        smooth: true,
+      },
     ]
   };
+
+
+  ngOnInit(): void {
+    this.getAverageByCategory()
+  }
+
 
   // Guarda la instancia del gráfico ECharts para poder redimensionarlo.
   chartInstance: any;
@@ -88,36 +105,82 @@ export class LinearChartComponent implements OnInit {
     const foundRange = ranges.find(range => questionNumber >= range.min && questionNumber <= range.max);
     return foundRange ? foundRange.category : 0; // Retorna 0 si no se encontró ningún rango.
   }
+  private async loadSurveys(filters?: SurveyFilters) {
+    // Llama a tu método adaptado getSurveys(filters)
+    this.getAverageByCategory(filters)
+  }
 
+  clearFilter() {
+    this.filterType = '';
+    this.filterValue = '';
+    this.loadSurveys(); // sin filtros
+  }
+
+  applyFilter() {
+    const filters: SurveyFilters = {};
+    const valueUpperCase = this.filterValue.toUpperCase();
+    if (this.filterType && valueUpperCase) {
+      // Mapea el select a la propiedad adecuada
+      switch (this.filterType) {
+        case 'city':
+          filters.city = valueUpperCase;
+          break;
+        case 'school':
+          filters.school = valueUpperCase;
+          break;
+        case 'group':
+          filters.group = valueUpperCase;
+          break;
+      }
+    }
+    this.loadSurveys(filters);
+  }
+
+  async getSurveys(filters?: SurveyFilters) {
+    try {
+      return await  this.surveyService.getSurveys(filters);
+    } catch (err: any) {
+      if (err.status === 404) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'No se encontró',
+          text: 'No hay encuestas con el filtro ingresado. Por favor, revisa e inténtalo nuevamente.'
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Ocurrió un problema al obtener las encuestas'
+        });
+      }
+      // opcional: limpiar datos previos y gráfica vacía
+      return []
+    }
+  }
   // Método asíncrono para obtener los promedios por categoría de preguntas
-  async obtenerPromediosPorCategoria(): Promise<{ [category: string]: number }> {
+  async getAverageByCategory(filter?: SurveyFilters): Promise<{ [category: string]: number }> {
     try {
       // Supongo que tienes un método que obtiene todas las encuestas
-      const encuestas = await this.surveyService.getSurveys(); // Retorna un arreglo de encuestas
+      const surveys = await this.getSurveys(filter); // Retorna un arreglo de encuestas
 
       // Objeto para agrupar los totales y conteos
       const agrupacion: { [category: string]: { total: number; count: number } } = {};
-      let count = 0;
-      let prom = 0;
+
       // Recorremos cada encuesta
-      encuestas.forEach(encuesta => {
+      surveys.forEach(survey => {
         // Aseguramos que encuesta.questions es un arreglo
-        if (encuesta.questions && typeof encuesta.questions === 'object') {
-          Object.keys(encuesta.questions).forEach(questionKey => {
+        if (survey.questions && typeof survey.questions === 'object') {
+          Object.keys(survey.questions).forEach(questionKey => {
             // Extrae y convierte el valor de la respuesta a número
-            const valorRespuesta = Number(encuesta.questions[questionKey]);
+            const valorRespuesta = Number(survey.questions[questionKey]);
 
             // Extrae el número de pregunta removiendo la letra inicial "q"
             const questionNumber = Number(questionKey.replace(/^q/, ''));
             // Asumimos que tienes una función para determinar la categoría a partir del número de pregunta
             const categoriaNum = this.getCategoryByQuestionNumber(questionNumber);
             const catKey = `${categoriaNum}`;
-            if (categoriaNum == 2) {
-              prom += valorRespuesta;
-              count++;
-            }
 
-            // Solo computamos el valor si es un número válido
+
             if (categoriaNum && !isNaN(valorRespuesta)) {
               if (!agrupacion[catKey]) {
                 agrupacion[catKey] = { total: 0, count: 0 };
@@ -138,12 +201,18 @@ export class LinearChartComponent implements OnInit {
       });
       const categoriasOrdenadas = Object.keys(promedios).sort((a, b) => Number(a) - Number(b));
       const promediosArray = categoriasOrdenadas.map(cat => promedios[cat]);
+        let idx = 0;
+     if(filter?.city){
+       idx = 1;
 
-      console.log(promediosArray)
-      this.chartOption.series[0].data = promediosArray;
-      this.chartOption = { ...this.chartOption };
-
-      console.log('Promedios por categoría:', promedios);
+     }
+     else if (filter?.school){
+      idx = 2;
+     }else if (filter?.group){
+      idx = 3
+     }
+      this.updateSeries(promediosArray, idx);
+      
       return promedios;
     } catch (error) {
       console.error('Error al obtener promedios por categoría:', error);
@@ -151,6 +220,15 @@ export class LinearChartComponent implements OnInit {
     }
   }
 
+
+  private updateSeries(data: any[], index: number) {
+    this.chartOption = {
+      ...this.chartOption,
+      series: this.chartOption.series.map((s: any, i: number) =>
+        i === index ? { ...s, data } : s
+      )
+    };
+  }
 
   // HostListener para detectar el redimensionamiento de la ventana.
   @HostListener('window:resize', ['$event'])

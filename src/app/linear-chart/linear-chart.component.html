@@ -1,4 +1,57 @@
-<div class="container">
+<div class="container my-4">
+  <!-- Fila de filtros, centrada -->
+  <h5 class="text-center m-4">Agregar filtro</h5>
+
+  <div class="row justify-content-center mb-3">
+    <div class="col-5">
+      <input
+        id="filterValue"
+        type="text"
+        class="form-control form-control-sm"
+        placeholder="Ingresa el valor del filtro"
+        [(ngModel)]="filterValue"
+        style="min-width: 150px;"
+      />
+    </div>
+
+  </div>
+  <div class="row justify-content-center mb-3">
+    <div class="col-5">
+      <select
+        id="filterType"
+        class="form-select form-select-sm"
+        [(ngModel)]="filterType"
+        style="min-width: 150px;"
+      >
+        <option value="" disabled selected>Selecciona el tipo del filtro</option>
+        <option value="city">Ciudad</option>
+        <option value="school">Institución</option>
+        <option value="group">Grupo</option>
+      </select>
+    </div>
+
+  </div>
+
+
+  <!-- Fila de botones, también centrada -->
+  <div class="row justify-content-center mt-4">
+    <div class="col-auto d-flex gap-2">
+      <button
+        class="btn btn-primary btn-sm"
+        (click)="applyFilter()"
+      >
+        Aplicar
+      </button>
+      <button
+        class="btn btn-secondary btn-sm"
+        (click)="clearFilter()"
+      >
+        Limpiar
+      </button>
+    </div>
+  </div>
+</div>
+<div class="container mt-5">
   <!-- Contenedor del gráfico -->
   <div 
     echarts 
