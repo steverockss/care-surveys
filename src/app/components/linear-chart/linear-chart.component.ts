@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
+import { NgxEchartsModule } from 'ngx-echarts';
 import { SurveyService } from '../../services/surveys.service';
 import { FormsModule } from '@angular/forms';
 import { SurveyFilters } from '../../models/survery-filters'
@@ -12,13 +12,7 @@ import { calculateAverage, getCategoryByQuestionNumber } from '../../utils/surve
   standalone: true,
   imports: [CommonModule, NgxEchartsModule, FormsModule],
   templateUrl: './linear-chart.component.html',
-  styleUrls: ['./linear-chart.component.css'],
-  providers: [
-    {
-      provide: NGX_ECHARTS_CONFIG,
-      useValue: { echarts: () => import('echarts') }
-    }
-  ]
+  styleUrls: ['./linear-chart.component.css']
 })
 export class LinearChartComponent implements OnInit {
   filterType: string = '';

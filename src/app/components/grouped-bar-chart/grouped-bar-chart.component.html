@@ -1,33 +1,38 @@
 <div class="container my-4">
-    <!-- Fila de filtros, centrada -->
-    <h5 class="text-center m-4">Buscar estudiante</h5>
-  
-    <div class="row justify-content-center mb-3">
-      <div class="col-5">
-        <input
-          id="documentNumber"
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Ingresa el número del documento"
-          [(ngModel)]="documentNumber"
-          style="min-width: 150px;"
-        />
-      </div>
-  
+  <div class="row justify-content-center">
+    <!-- Aquí defines el ancho deseado -->
+    <div class="col-lg-8 col-md-10">
+
+  <div class="card shadow-sm">
+    <div class="card-header text-center">
+      <h5 class="mb-0">Buscar estudiante</h5>
     </div>
-  
-  
-    <!-- Fila de botones, también centrada -->
-    <div class="row justify-content-center mt-4">
-      <div class="col-auto d-flex gap-2">
-        <button
-          class="btn btn-primary btn-sm"
-          (click)="applyFilter()"
-        >
-          Buscar
-        </button>
+    <div class="card-body">
+      <div class="row justify-content-center mb-3">
+        <div class="col-5">
+          <input
+            id="documentNumber"
+            type="text"
+            class="form-control form-control-sm"
+            placeholder="Ingresa el número del documento"
+            [(ngModel)]="documentNumber"
+          />
+        </div>
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-auto">
+          <button
+            class="btn btn-primary btn-sm"
+            (click)="applyFilter()"
+          >
+            Buscar
+          </button>
+        </div>
       </div>
     </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 

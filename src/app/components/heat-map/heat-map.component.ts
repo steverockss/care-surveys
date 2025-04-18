@@ -75,7 +75,14 @@ export class HeatMapComponent implements OnInit {
         calculable: true,
         orient: 'horizontal',
         left: 'center',
-        bottom: '5%'
+        align: 'auto',
+        bottom: '5%',
+        inRange: {
+          color: [ '#ffffe0', 
+      '#fff1b3  ',
+      '#e57373 ', 
+      '#b30000']
+        }
       },
       series: [
         {
