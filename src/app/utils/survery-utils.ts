@@ -104,6 +104,14 @@ export function calculateDistribution(surveys: any) {
         }
          
     });
-    console.log(result);
     return pivotCounts(result);
+}
+
+export function getCities(surveys: any): string[]{
+    const citiesSet = new Set<string>(
+        surveys.map((s: { city: string; }) => s.city)
+      );
+     
+   return Array.from(citiesSet).sort()
+
 }

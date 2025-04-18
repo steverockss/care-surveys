@@ -1,0 +1,28 @@
+<div class="container">
+    <div *ngIf="loading" class="d-flex justify-content-center my-5">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+      
+    <div class="container mt-5">
+        <div  
+        echarts
+        [options]="chartOption"
+        class="demo-chart"
+        style="height: 400px; width: 100%;">
+        
+        </div>
+    </div>
+    
+    <div class="container mt-5">
+        <div  
+        echarts
+        [options]="chartOption"
+        class="demo-chart"
+        style="height: 400px; width: 100%;">
+        
+        </div>
+    </div>
+</div>
+

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxEchartsModule } from 'ngx-echarts';
-import { EChartsOption } from 'echarts';
 import { CARE_CATEGORIES } from '../../models/constants';
 import { SurveyService } from '../../services/surveys.service';
 import { FormsModule } from '@angular/forms';
