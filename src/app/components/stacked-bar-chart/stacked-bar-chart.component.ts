@@ -16,7 +16,7 @@ export class StackedBarChartComponent implements OnInit {
     constructor(private surveyService: SurveyService) { }
 
 
-  chartOption: EChartsOption = {
+  chartOption: any = {
     title: {
       text: 'Gráfico de Barras Apiladas',
       left: 'center'
@@ -41,31 +41,26 @@ export class StackedBarChartComponent implements OnInit {
         name: 'Totalmente en desacuerdo',
         type: 'bar',
         stack: 'total',
-        data: [320, 302, 301, 334, 390, 330, 320]
       },
       {
         name: 'Desacuerdo',
         type: 'bar',
         stack: 'total',
-        data: [120, 132, 101, 134, 90, 230, 210]
       },
       {
         name: 'Indiferente',
         type: 'bar',
         stack: 'total',
-        data: [220, 182, 191, 234, 290, 330, 310]
       },
       {
         name: 'De acuerdo',
         type: 'bar',
         stack: 'total',
-        data: [220, 182, 191, 234, 290, 330, 310]
       },
       {
         name: 'Totalmente de acuerdo',
         type: 'bar',
         stack: 'total',
-        data: [220, 182, 191, 234, 290, 330, 310]
       }
     ]
   };
@@ -76,7 +71,12 @@ export class StackedBarChartComponent implements OnInit {
 
   async generateData(){
     const surveyData = await this.surveyService.getSurveys();
-    console.log(calculateDistribution(surveyData));
+    const distributatedSurveyData = calculateDistribution(surveyData);
+    Object.values(distributatedSurveyData).forEach( (data, index) =>{
+      this.chartOption.series[index].data = data;
+    });
+
+    this.chartOption = { ...this.chartOption };
   }
 
 }

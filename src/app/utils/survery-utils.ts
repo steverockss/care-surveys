@@ -1,6 +1,7 @@
 
 type CountsByLikert = Record<number, number>;
 type CountsByCategory = Record<string, CountsByLikert>;
+type PivotedCounts = Record<number, number[]>;
 
 const QUESTION_RANGES: any[] = [
     { min: 1, max: 50, category: 1 },
@@ -52,7 +53,24 @@ export function calculateAverage(surveys: any) {
     const categoriesInOrder = Object.keys(averages).sort((a, b) => Number(a) - Number(b));
     return categoriesInOrder.map(cat => averages[cat]);
 }
-
+function pivotCounts(
+    data: CountsByCategory
+  ) : PivotedCounts{
+    const arr: CountsByLikert[] = Object.values(data);
+    return arr.reduce((acumulador, elementoActual) => {
+      Object.entries(elementoActual).forEach(([clave, valor]) => {
+        const nivel = Number(clave);
+  
+        if (!acumulador[nivel]) {
+          acumulador[nivel] = [];
+        }
+  
+        acumulador[nivel].push(valor);
+      });
+  
+      return acumulador;
+    }, {} as PivotedCounts);
+  }
 export function calculateDistribution(surveys: any) {
     const result: CountsByCategory = {};
     surveys.forEach((survey: { questions: { [x: string]: any; }; }) => {
@@ -84,6 +102,8 @@ export function calculateDistribution(surveys: any) {
 
             });
         }
+         
     });
-    return result;
+    console.log(result);
+    return pivotCounts(result);
 }
