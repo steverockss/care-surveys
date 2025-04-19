@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { CommonModule } from '@angular/common';
 import { EChartsOption } from 'echarts';
-import { CARE_CATEGORIES } from '../../models/constants';
-import { SurveyService } from '../../services/surveys.service';
-import { calculateDistribution } from '../../utils/survery-utils';
+import { CARE_CATEGORIES } from '../../../models/constants';
+import { SurveyService } from '../../../services/surveys.service';
+import { calculateDistribution } from '../../../utils/survery-utils';
 @Component({
   selector: 'app-stacked-bar-chart',
   standalone: true,

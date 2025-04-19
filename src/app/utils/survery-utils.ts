@@ -115,3 +115,13 @@ export function getCities(surveys: any): string[]{
    return Array.from(citiesSet).sort()
 
 }
+
+
+export function getSchools(surveys: any): string[]{
+    const schoolsSet = new Set<string>(
+        surveys.map((s: { school: string; }) => s.school)
+      );
+     
+   return Array.from(schoolsSet).sort()
+
+}

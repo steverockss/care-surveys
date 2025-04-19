@@ -1,11 +1,11 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxEchartsModule } from 'ngx-echarts';
-import { SurveyService } from '../../services/surveys.service';
+import { SurveyService } from '../../../services/surveys.service';
 import { FormsModule } from '@angular/forms';
-import { SurveyFilters } from '../../models/survery-filters'
+import { SurveyFilters } from '../../../models/survery-filters'
 import Swal from 'sweetalert2';
-import { calculateAverage, getCategoryByQuestionNumber } from '../../utils/survery-utils';
+import { calculateAverage, getCategoryByQuestionNumber } from '../../../utils/survery-utils';
 
 @Component({
   selector: 'app-linear-chart',
@@ -27,6 +27,10 @@ export class LinearChartComponent implements OnInit {
     },
     legend: {
       data: ['Promedio ciudad', 'Promedio global', 'Promedio institución', 'Promedio grupo']
+    },
+    label: {
+      show: true,
+      position: 'top'    
     },
     toolbox: {
       feature: {
@@ -137,7 +141,6 @@ export class LinearChartComponent implements OnInit {
           text: 'Ocurrió un problema al obtener las encuestas'
         });
       }
-      // opcional: limpiar datos previos y gráfica vacía
       return []
     }
   }

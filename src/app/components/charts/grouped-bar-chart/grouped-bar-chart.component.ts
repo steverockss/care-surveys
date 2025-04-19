@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NgxEchartsModule } from 'ngx-echarts';
-import { CARE_CATEGORIES } from '../../models/constants';
-import { SurveyService } from '../../services/surveys.service';
+import { CARE_CATEGORIES } from '../../../models/constants';
+import { SurveyService } from '../../../services/surveys.service';
 import { FormsModule } from '@angular/forms';
-import { calculateAverage } from '../../utils/survery-utils';
+import { calculateAverage } from '../../../utils/survery-utils';
 @Component({
   selector: 'app-grouped-bar-chart',
   standalone: true,
@@ -20,7 +20,9 @@ export class GroupedBarChartComponent implements OnInit {
       left: 'center',
       textStyle: { fontSize: 16 }
     },
-    tooltip: { trigger: 'axis' },
+    tooltip: {
+      trigger: 'axis',
+    },
     legend: {
       data: ['Encuesta inicial', 'Encuesta final'],
       icon: 'rect',
@@ -36,6 +38,11 @@ export class GroupedBarChartComponent implements OnInit {
       min: 1,
       interval: 0.5
     },
+    label: {
+      show: true,
+      formatter: (params: any) => params.value[2],
+      color: '#FFFFFF'
+    },
     series: [
       {
         name: 'Encuesta inicial',
@@ -49,7 +56,21 @@ export class GroupedBarChartComponent implements OnInit {
   };
 
   ngOnInit(): void {
+    this.getAllAvgs()
 
+  }
+  async getAllAvgs(){
+    const surveyData = await this.surveyService.getSurveys();
+
+    const inicialSurveys = surveyData.filter(
+      (s: any) => s.surveyType?.toLowerCase() === 'inicial'
+    );
+    const finalSurveys = surveyData.filter(
+      (s: any) => s.surveyType?.toLowerCase() === 'final'
+    );
+    const initialAverage = calculateAverage(inicialSurveys);
+    const finalAverage = calculateAverage(finalSurveys);
+    this.updateChart(initialAverage, finalAverage)
   }
 
   async applyFilter() {
@@ -63,7 +84,12 @@ export class GroupedBarChartComponent implements OnInit {
     );
     const initialAverage = calculateAverage(inicialSurveys);
     const finalAverage = calculateAverage(finalSurveys);
+    this.updateChart(initialAverage, finalAverage)
 
+
+
+  }
+  updateChart(initialAverage: any, finalAverage: any){
     this.chartOption = {
       ...this.chartOption,
       series: this.chartOption.series.map((serie: any, idx: number) => {
@@ -76,6 +102,5 @@ export class GroupedBarChartComponent implements OnInit {
         return serie;
       })
     };
-
   }
 }
